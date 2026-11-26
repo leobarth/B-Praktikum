@@ -50,4 +50,4 @@ tabelle("experiment_3.csv", ("I_A", "B_mT"),
         "Messwerte der Hysterese (Abschnitt~\\ref{sec:hyst}) in chronologischer "
         "Reihenfolge, Rohwerte mit dem Stromvorzeichen der Anzeige (nicht umgepolt).",
         "tab:exp3", "tabelle_exp3.tex",
-        dec=(1, 1), marker_rows=(12,))
+        dec=(1, 0), marker_rows=(12,))

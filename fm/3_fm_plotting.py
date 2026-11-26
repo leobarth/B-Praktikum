@@ -6,7 +6,7 @@ from matplotlib.lines import Line2D
 
 # ---------- Unsicherheitsannahmen (bei Bedarf anpassen) ----------
 ABS_I = 0.05    # A,  halbe Anzeigeauflösung (0,1 A)
-ABS_B = 0.05    # mT, halbe Anzeigeauflösung (0,1 mT)
+ABS_B = 0.5    # mT, halbe Anzeigeauflösung (0,1 mT)
 REL_I = 0.03    # relative Geräteunsicherheit Strom (Annahme, bitte prüfen!)
 REL_B = 0.03    # relative Geräteunsicherheit Flussdichte (Annahme, bitte prüfen!)
 
