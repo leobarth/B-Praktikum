@@ -1,5 +1,6 @@
-Beide Probleme sind behoben. Der Titel hat jetzt mehr Abstand (pad=28), und die Achsenbeschriftungen sitzen direkt an den Pfeilspitzen. Die Pfeile sind als Marker an den Achsenenden gesetzt.pythonimport numpy as np
+# Beide Probleme sind behoben. Der Titel hat jetzt mehr Abstand (pad=28), und die Achsenbeschriftungen sitzen direkt an den Pfeilspitzen. Die Pfeile sind als Marker an den Achsenenden gesetzt.pythonimport numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 
 # ---------- Parameter (qualitativ, willkürliche Einheiten) ----------
 mu0  = 1.0    # in willkürlichen Einheiten, daher B = H + M
@@ -84,9 +85,4 @@ axB.legend(loc='lower right', frameon=False)
 
 fig.tight_layout()
 fig.savefig('hysterese_skizze.png', dpi=300, bbox_inches='tight')
-plt.show()Änderungen:
-
-Titel und Achsenlabel: Das Label sitzt 8 Punkte über der Pfeilspitze, der Titel 28 Punkte über dem Achsenrand. Falls dir der Abstand zu groß oder zu klein ist, ändere pad=28 bzw. den Offset (0, 8).
-Pfeile: '>k' und '^k' setzen die Pfeilspitzen an die Enden der Achsen. Mit ms änderst du die Größe.
-Achsengrenzen: Sie sind jetzt explizit gesetzt, damit die Pfeilspitzen sauber am Rand sitzen und nicht von der Autoskalierung verschoben werden.
-Die Einbindung in LaTeX bleibt unverändert.
+plt.show()
