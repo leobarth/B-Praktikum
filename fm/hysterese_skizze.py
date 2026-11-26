@@ -1,4 +1,4 @@
-import numpy as np
+Beide Probleme sind behoben. Der Titel hat jetzt mehr Abstand (pad=28), und die Achsenbeschriftungen sitzen direkt an den Pfeilspitzen. Die Pfeile sind als Marker an den Achsenenden gesetzt.pythonimport numpy as np
 import matplotlib.pyplot as plt
 
 # ---------- Parameter (qualitativ, willkürliche Einheiten) ----------
@@ -12,9 +12,9 @@ H     = np.linspace(-Hmax, Hmax, 1000)
 H_neu = np.linspace(0, Hmax, 500)
 
 # ---------- Magnetisierung ----------
-M_auf  = Ms * np.tanh((H - Hc) / w)   # aufsteigender Ast
-M_ab   = Ms * np.tanh((H + Hc) / w)   # absteigender Ast
-M_neu  = Ms * np.tanh(H_neu / w)      # Neukurve (liegt innerhalb der Schleife)
+M_auf = Ms * np.tanh((H - Hc) / w)   # aufsteigender Ast
+M_ab  = Ms * np.tanh((H + Hc) / w)   # absteigender Ast
+M_neu = Ms * np.tanh(H_neu / w)      # Neukurve (liegt innerhalb der Schleife)
 
 # ---------- Flussdichte B = mu0 (H + M) ----------
 B_auf = mu0 * (H + M_auf)
@@ -25,21 +25,33 @@ B_neu = mu0 * (H_neu + M_neu)
 Mr = Ms * np.tanh(Hc / w)
 Br = mu0 * Mr
 i = np.where(np.diff(np.sign(B_ab)))[0][0]
-HcB = H[i] - B_ab[i] * (H[i + 1] - H[i]) / (B_ab[i + 1] - B_ab[i])  # < 0
-HcB = abs(HcB)
+HcB = abs(H[i] - B_ab[i] * (H[i + 1] - H[i]) / (B_ab[i + 1] - B_ab[i]))
 
 # ---------- Plot ----------
-fig, (axM, axB) = plt.subplots(1, 2, figsize=(11, 4.8))
+fig, (axM, axB) = plt.subplots(1, 2, figsize=(11, 5))
 
-def achsen(ax, ylabel):
+def achsen(ax, ylabel, ylim):
+    """Achsenkreuz im Ursprung mit Pfeilen in positiver Richtung."""
+    ax.set_xlim(-Hmax * 1.1, Hmax * 1.1)
+    ax.set_ylim(*ylim)
     ax.spines['left'].set_position('zero')
     ax.spines['bottom'].set_position('zero')
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
     ax.set_xticks([])
     ax.set_yticks([])
-    ax.text(1.02, 0, r'$H$', transform=ax.get_yaxis_transform(), va='center')
-    ax.text(0, 1.02, ylabel, transform=ax.get_xaxis_transform(), ha='center')
+
+    # Pfeilspitzen an den Achsenenden (nur positive Richtung)
+    ax.plot(1, 0, '>k', ms=8, transform=ax.get_yaxis_transform(), clip_on=False)
+    ax.plot(0, 1, '^k', ms=8, transform=ax.get_xaxis_transform(), clip_on=False)
+
+    # Beschriftungen direkt an den Pfeilspitzen (Abstand in Punkten)
+    ax.annotate(r'$H$', xy=(1, 0), xycoords=ax.get_yaxis_transform(),
+                xytext=(8, 0), textcoords='offset points',
+                ha='left', va='center')
+    ax.annotate(ylabel, xy=(0, 1), xycoords=ax.get_xaxis_transform(),
+                xytext=(0, 8), textcoords='offset points',
+                ha='center', va='bottom')
 
 def punkt(ax, x, y, text, offset):
     ax.plot(x, y, 'ko', ms=4, zorder=5)
@@ -55,9 +67,8 @@ axM.text(-Hmax, Ms + 0.05, r'$M_\mathrm{s}$', color='gray')
 punkt(axM, 0, Mr, r'$M_\mathrm{r}$', (8, -4))
 punkt(axM, Hc, 0, r'$H_\mathrm{C}$', (2, -16))
 punkt(axM, -Hc, 0, r'$-H_\mathrm{C}$', (-30, 6))
-achsen(axM, r'$M$')
-axM.set_ylim(-1.4, 1.4)
-axM.set_title(r'Magnetisierung $M(H)$')
+achsen(axM, r'$M$', (-1.4, 1.4))
+axM.set_title(r'Magnetisierung $M(H)$', pad=28)   # pad: Abstand zum Achsenlabel
 axM.legend(loc='lower right', frameon=False)
 
 # --- B(H) ---
@@ -67,10 +78,15 @@ axB.plot(H_neu, B_neu, 'C0-', lw=2, label='Neukurve')
 punkt(axB, 0, Br, r'$B_\mathrm{r}$', (8, -4))
 punkt(axB, HcB, 0, r'$H_\mathrm{C}$', (2, -16))
 punkt(axB, -HcB, 0, r'$-H_\mathrm{C}$', (-30, 6))
-achsen(axB, r'$B$')
-axB.set_title(r'Flussdichte $B(H)=\mu_0\,(H+M)$')
+achsen(axB, r'$B$', (-3.8, 3.8))
+axB.set_title(r'Flussdichte $B(H)=\mu_0\,(H+M)$', pad=28)
 axB.legend(loc='lower right', frameon=False)
 
 fig.tight_layout()
 fig.savefig('hysterese_skizze.png', dpi=300, bbox_inches='tight')
-plt.show()
+plt.show()Änderungen:
+
+Titel und Achsenlabel: Das Label sitzt 8 Punkte über der Pfeilspitze, der Titel 28 Punkte über dem Achsenrand. Falls dir der Abstand zu groß oder zu klein ist, ändere pad=28 bzw. den Offset (0, 8).
+Pfeile: '>k' und '^k' setzen die Pfeilspitzen an die Enden der Achsen. Mit ms änderst du die Größe.
+Achsengrenzen: Sie sind jetzt explizit gesetzt, damit die Pfeilspitzen sauber am Rand sitzen und nicht von der Autoskalierung verschoben werden.
+Die Einbindung in LaTeX bleibt unverändert.
