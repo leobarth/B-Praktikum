@@ -17,6 +17,7 @@ SCHWELLE = 150
 AUSREISSER_ZEILEN = None
 
 VORZEICHEN_UMKEHREN = False   # True: B -> -B (Sondenorientierung)
+STROM_UMKEHREN      = True
 
 # ---------- Daten ----------
 df = pd.read_csv("experiment_3.csv").dropna(how="all").reset_index(drop=True)
@@ -24,6 +25,8 @@ I = df["I_A"].to_numpy(dtype=float)
 B = df["B_mT"].to_numpy(dtype=float)
 if VORZEICHEN_UMKEHREN:
     B = -B
+if STROM_UMKEHREN:
+    I = -I
 n = len(I)
 
 valid = np.ones(n, dtype=bool)
@@ -67,9 +70,9 @@ def schnitt(a, b):
             res.append(b[k] + t * (b[k + 1] - b[k]))
     return res
 
-imin = int(np.argmin(Iv))                 # Umkehrpunkt (kleinster Strom)
-aeste = {"Ast 1 (Strom sinkend)": (Iv[:imin + 1], Bv[:imin + 1]),
-         "Ast 2 (Strom steigend)": (Iv[imin:], Bv[imin:])}
+iturn = int(np.argmin(Iv)) if Iv[0] > 0 else int(np.argmax(Iv))
+aeste = {"Ast 1 (Hinweg)": (Iv[:iturn + 1], Bv[:iturn + 1]),
+         "Ast 2 (Rückweg)": (Iv[iturn:], Bv[iturn:])}
 Br, Ic = [], []
 for name, (i_a, b_a) in aeste.items():
     br, ic = schnitt(i_a, b_a), schnitt(b_a, i_a)
@@ -91,7 +94,7 @@ ax.errorbar(Iv, Bv, xerr=ux_w, yerr=uy_w, fmt="none", ecolor=farbe,
 for x0, y0, dx, dy in zip(Iv, Bv, ux_k, uy_k):
     ax.add_patch(Rectangle((x0 - dx, y0 - dy), 2 * dx, 2 * dy,
                            facecolor=farbe, edgecolor=farbe, alpha=0.3, lw=0.8, zorder=3))
-ax.plot(Iv, Bv, marker="o", markersize=3.5, lw=1.3, color=farbe, zorder=4)
+ax.plot(Iv, Bv, marker="o", markersize=1.5, lw=0.2, color=farbe, zorder=4)
 ax.scatter(Iv[0], Bv[0], color="red", zorder=6)
 if (~valid).any():
     ax.scatter(I[~valid], B[~valid], marker="x", s=60, color="red", zorder=6)
@@ -104,7 +107,7 @@ ax.set_ylabel("Magnetische Flussdichte $B$ (mT)")
 ax.grid(True, ls="--", alpha=0.4)
 
 handles = [
-    Line2D([], [], marker="o", color=farbe, ms=4, lw=1.3, label="Messwerte (chronologisch)"),
+    Line2D([], [], marker="o", color=farbe, ms=2, lw=1.3, label="Messwerte (chronologisch)"),
     Line2D([], [], marker="o", color="red", ls="", ms=6, label="Startpunkt"),
     Patch(facecolor=farbe, edgecolor=farbe, alpha=0.3, label="Körper: ±u (quadratische Summe)"),
     Line2D([], [], color=farbe, marker="|", ms=6, lw=0.8, label="Docht: ±u (lineare Summe)"),
@@ -112,7 +115,7 @@ handles = [
 if (~valid).any():
     handles.insert(2, Line2D([], [], marker="x", color="red", ls="", ms=7,
                              label="Ausreißer (nicht ausgewertet)"))
-ax.legend(handles=handles, fontsize=8, loc="upper right")
+ax.legend(handles=handles, fontsize=8, loc="upper left")
 
 fig.tight_layout()
 plt.savefig("hysterese_b_h.png", dpi=300)
